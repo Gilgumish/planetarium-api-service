@@ -15,3 +15,5 @@ router.register("tickets", TicketViewSet)
 urlpatterns = [
     path('', include(router.urls)),
 ]
+
+app_name = 'planetarium'
