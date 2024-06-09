@@ -4,11 +4,9 @@ from django.db.models import F, Count
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from rest_framework import viewsets, mixins, status
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
-from rest_framework.filters import OrderingFilter
 
 from planetarium.models import ShowTheme, AstronomyShow, PlanetariumDome, ShowSession, Reservation, Ticket
 from planetarium.permissions import IsAdminOrIfAuthenticatedReadOnly, IsAdminOrIsOwner
@@ -112,8 +110,8 @@ class AstronomyShowViewSet(
             OpenApiExample(
                 'Example Show List',
                 value=[
-                    {"id": 1, "title": "Exploring the Solar System", "themes": ["Solar System"]},
-                    {"id": 2, "title": "The Mysteries of Galaxies", "themes": ["Galaxies"]}
+                    {"id": 1, "title": "Exploring the Solar System", "themes": ["Solar System"], "image": "path/to/image1.jpg"},
+                    {"id": 2, "title": "The Mysteries of Galaxies", "themes": ["Galaxies"], "image": "path/to/image2.jpg"}
                 ]
             )
         ]
@@ -333,13 +331,17 @@ class ReservationViewSet(
         return super().retrieve(request, *args, **kwargs)
 
 
-class TicketViewSet(
-    mixins.CreateModelMixin,
-    GenericViewSet,
-):
+class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
     permission_classes = (IsAuthenticated,)
+
+    def get_permissions(self):
+        if self.action == 'list':
+            self.permission_classes = [IsAdminOrIsOwner]
+        else:
+            self.permission_classes = [IsAuthenticated]
+        return super().get_permissions()
 
     @extend_schema(
         request=TicketSerializer,
@@ -365,3 +367,44 @@ class TicketViewSet(
         serializer.save(reservation=reservation)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @extend_schema(
+        responses={200: TicketListSerializer(many=True)},
+        examples=[
+            OpenApiExample(
+                'Example Ticket List',
+                value=[
+                    {
+                        "id": 1,
+                        "row": 1,
+                        "seat": 1,
+                        "show_session": {
+                            "id": 1,
+                            "show_time": "2024-07-01T10:00:00Z",
+                            "astronomy_show_title": "Exploring the Solar System",
+                            "planetarium_dome_name": "Main Dome",
+                            "planetarium_dome_capacity": 200,
+                            "tickets_available": 198
+                        },
+                        "reservation": 1
+                    },
+                    {
+                        "id": 2,
+                        "row": 2,
+                        "seat": 3,
+                        "show_session": {
+                            "id": 1,
+                            "show_time": "2024-07-01T10:00:00Z",
+                            "astronomy_show_title": "Exploring the Solar System",
+                            "planetarium_dome_name": "Main Dome",
+                            "planetarium_dome_capacity": 200,
+                            "tickets_available": 198
+                        },
+                        "reservation": 1
+                    }
+                ]
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
