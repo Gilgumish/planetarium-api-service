@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import AstronomyShow, PlanetariumDome, ShowSession, ShowTheme, Reservation, Ticket
+from .models import (
+    AstronomyShow,
+    PlanetariumDome,
+    ShowSession,
+    ShowTheme,
+    Reservation,
+    Ticket,
+)
 
 admin.site.register(AstronomyShow)
 admin.site.register(PlanetariumDome)

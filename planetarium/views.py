@@ -8,7 +8,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from planetarium.models import ShowTheme, AstronomyShow, PlanetariumDome, ShowSession, Reservation, Ticket
+from planetarium.models import (
+    ShowTheme,
+    AstronomyShow,
+    PlanetariumDome,
+    ShowSession,
+    Reservation,
+    Ticket,
+)
 from planetarium.permissions import IsAdminOrIfAuthenticatedReadOnly, IsAdminOrIsOwner
 from planetarium.serializers import (
     ShowThemeSerializer,
@@ -22,10 +29,11 @@ from planetarium.serializers import (
     ReservationSerializer,
     ReservationListSerializer,
     TicketSerializer,
-    TicketListSerializer
+    TicketListSerializer,
 )
 from planetarium.pagination import StandardResultsSetPagination
 from planetarium.ordering import CustomOrderingFilter
+
 
 class ShowThemeViewSet(
     mixins.CreateModelMixin,
@@ -40,18 +48,23 @@ class ShowThemeViewSet(
 
     @extend_schema(
         parameters=[
-            OpenApiParameter(name='name', description='Name of the show theme', required=True, type=OpenApiTypes.STR),
+            OpenApiParameter(
+                name="name",
+                description="Name of the show theme",
+                required=True,
+                type=OpenApiTypes.STR,
+            ),
         ],
         responses={200: ShowThemeSerializer(many=True)},
         examples=[
             OpenApiExample(
-                'Example Theme List',
+                "Example Theme List",
                 value=[
                     {"id": 1, "name": "Solar System"},
-                    {"id": 2, "name": "Galaxies"}
-                ]
+                    {"id": 2, "name": "Galaxies"},
+                ],
             )
-        ]
+        ],
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -108,13 +121,23 @@ class AstronomyShowViewSet(
         ],
         examples=[
             OpenApiExample(
-                'Example Show List',
+                "Example Show List",
                 value=[
-                    {"id": 1, "title": "Exploring the Solar System", "themes": ["Solar System"], "image": "path/to/image1.jpg"},
-                    {"id": 2, "title": "The Mysteries of Galaxies", "themes": ["Galaxies"], "image": "path/to/image2.jpg"}
-                ]
+                    {
+                        "id": 1,
+                        "title": "Exploring the Solar System",
+                        "themes": ["Solar System"],
+                        "image": "path/to/image1.jpg",
+                    },
+                    {
+                        "id": 2,
+                        "title": "The Mysteries of Galaxies",
+                        "themes": ["Galaxies"],
+                        "image": "path/to/image2.jpg",
+                    },
+                ],
             )
-        ]
+        ],
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -135,12 +158,18 @@ class PlanetariumDomeViewSet(
         responses={200: PlanetariumDomeSerializer(many=True)},
         examples=[
             OpenApiExample(
-                'Example Dome List',
+                "Example Dome List",
                 value=[
-                    {"id": 1, "name": "Main Dome", "rows": 10, "seats_in_row": 20, "capacity": 200}
-                ]
+                    {
+                        "id": 1,
+                        "name": "Main Dome",
+                        "rows": 10,
+                        "seats_in_row": 20,
+                        "capacity": 200,
+                    }
+                ],
             )
-        ]
+        ],
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -197,20 +226,33 @@ class ShowSessionViewSet(viewsets.ModelViewSet):
                 "date",
                 type=OpenApiTypes.DATE,
                 description=(
-                    "Filter by datetime of ShowSession "
-                    "(ex. ?date=2024-07-01)"
+                    "Filter by datetime of ShowSession " "(ex. ?date=2024-07-01)"
                 ),
             ),
         ],
         examples=[
             OpenApiExample(
-                'Example Session List',
+                "Example Session List",
                 value=[
-                    {"id": 1, "show_time": "2024-07-01T10:00:00Z", "astronomy_show_title": "Exploring the Solar System", "planetarium_dome_name": "Main Dome", "planetarium_dome_capacity": 200, "tickets_available": 198},
-                    {"id": 2, "show_time": "2024-07-01T14:00:00Z", "astronomy_show_title": "The Mysteries of Galaxies", "planetarium_dome_name": "Main Dome", "planetarium_dome_capacity": 200, "tickets_available": 200}
-                ]
+                    {
+                        "id": 1,
+                        "show_time": "2024-07-01T10:00:00Z",
+                        "astronomy_show_title": "Exploring the Solar System",
+                        "planetarium_dome_name": "Main Dome",
+                        "planetarium_dome_capacity": 200,
+                        "tickets_available": 198,
+                    },
+                    {
+                        "id": 2,
+                        "show_time": "2024-07-01T14:00:00Z",
+                        "astronomy_show_title": "The Mysteries of Galaxies",
+                        "planetarium_dome_name": "Main Dome",
+                        "planetarium_dome_capacity": 200,
+                        "tickets_available": 200,
+                    },
+                ],
             )
-        ]
+        ],
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -222,7 +264,8 @@ class ReservationViewSet(
     GenericViewSet,
 ):
     queryset = Reservation.objects.prefetch_related(
-        "tickets__show_session__astronomy_show", "tickets__show_session__planetarium_dome"
+        "tickets__show_session__astronomy_show",
+        "tickets__show_session__planetarium_dome",
     )
     serializer_class = ReservationSerializer
     pagination_class = StandardResultsSetPagination
@@ -244,7 +287,7 @@ class ReservationViewSet(
         responses={200: ReservationListSerializer(many=True)},
         examples=[
             OpenApiExample(
-                'Example Reservation List',
+                "Example Reservation List",
                 value=[
                     {
                         "id": 1,
@@ -259,8 +302,8 @@ class ReservationViewSet(
                                     "astronomy_show_title": "Exploring the Solar System",
                                     "planetarium_dome_name": "Main Dome",
                                     "planetarium_dome_capacity": 200,
-                                    "tickets_available": 198
-                                }
+                                    "tickets_available": 198,
+                                },
                             },
                             {
                                 "id": 2,
@@ -272,16 +315,16 @@ class ReservationViewSet(
                                     "astronomy_show_title": "Exploring the Solar System",
                                     "planetarium_dome_name": "Main Dome",
                                     "planetarium_dome_capacity": 200,
-                                    "tickets_available": 198
-                                }
-                            }
+                                    "tickets_available": 198,
+                                },
+                            },
                         ],
                         "created_at": "2024-06-01T10:00:00Z",
-                        "user_email": "user@example.com"
+                        "user_email": "user@example.com",
                     }
-                ]
+                ],
             )
-        ]
+        ],
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -290,7 +333,7 @@ class ReservationViewSet(
         responses={200: ReservationListSerializer()},
         examples=[
             OpenApiExample(
-                'Example Reservation Detail',
+                "Example Reservation Detail",
                 value={
                     "id": 1,
                     "tickets": [
@@ -304,8 +347,8 @@ class ReservationViewSet(
                                 "astronomy_show_title": "Exploring the Solar System",
                                 "planetarium_dome_name": "Main Dome",
                                 "planetarium_dome_capacity": 200,
-                                "tickets_available": 198
-                            }
+                                "tickets_available": 198,
+                            },
                         },
                         {
                             "id": 2,
@@ -317,15 +360,15 @@ class ReservationViewSet(
                                 "astronomy_show_title": "Exploring the Solar System",
                                 "planetarium_dome_name": "Main Dome",
                                 "planetarium_dome_capacity": 200,
-                                "tickets_available": 198
-                            }
-                        }
+                                "tickets_available": 198,
+                            },
+                        },
                     ],
                     "created_at": "2024-06-01T10:00:00Z",
-                    "user_email": "user@example.com"
-                }
+                    "user_email": "user@example.com",
+                },
             )
-        ]
+        ],
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
@@ -337,7 +380,7 @@ class TicketViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
     def get_permissions(self):
-        if self.action == 'list':
+        if self.action == "list":
             self.permission_classes = [IsAdminOrIsOwner]
         else:
             self.permission_classes = [IsAuthenticated]
@@ -348,15 +391,11 @@ class TicketViewSet(viewsets.ModelViewSet):
         responses={201: TicketSerializer},
         examples=[
             OpenApiExample(
-                'Example Ticket Create',
-                value={
-                    "show_session_id": 1,
-                    "row": 1,
-                    "seat": 1
-                },
-                request_only=True
+                "Example Ticket Create",
+                value={"show_session_id": 1, "row": 1, "seat": 1},
+                request_only=True,
             )
-        ]
+        ],
     )
     def create(self, request, *args, **kwargs):
         user = request.user
@@ -366,13 +405,15 @@ class TicketViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save(reservation=reservation)
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
 
     @extend_schema(
         responses={200: TicketListSerializer(many=True)},
         examples=[
             OpenApiExample(
-                'Example Ticket List',
+                "Example Ticket List",
                 value=[
                     {
                         "id": 1,
@@ -384,9 +425,9 @@ class TicketViewSet(viewsets.ModelViewSet):
                             "astronomy_show_title": "Exploring the Solar System",
                             "planetarium_dome_name": "Main Dome",
                             "planetarium_dome_capacity": 200,
-                            "tickets_available": 198
+                            "tickets_available": 198,
                         },
-                        "reservation": 1
+                        "reservation": 1,
                     },
                     {
                         "id": 2,
@@ -398,13 +439,13 @@ class TicketViewSet(viewsets.ModelViewSet):
                             "astronomy_show_title": "Exploring the Solar System",
                             "planetarium_dome_name": "Main Dome",
                             "planetarium_dome_capacity": 200,
-                            "tickets_available": 198
+                            "tickets_available": 198,
                         },
-                        "reservation": 1
-                    }
-                ]
+                        "reservation": 1,
+                    },
+                ],
             )
-        ]
+        ],
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)

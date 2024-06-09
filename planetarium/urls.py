@@ -12,7 +12,7 @@ router.register("tickets", views.TicketViewSet)
 
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]
 
-app_name = 'planetarium'
+app_name = "planetarium"
