@@ -156,3 +156,9 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": False,
 }
 
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Planetarium API',
+    'DESCRIPTION': 'API documentation for the Planetarium project.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
