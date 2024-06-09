@@ -13,6 +13,11 @@ router.register("tickets", views.TicketViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
+    path(
+        "astronomy_shows/<int:pk>/upload-image/",
+        views.AstronomyShowViewSet.as_view({"post": "upload_image"}),
+        name="astronomyshow-upload-image",
+    ),
 ]
 
 app_name = "planetarium"
