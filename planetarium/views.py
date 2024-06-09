@@ -151,7 +151,9 @@ class AstronomyShowViewSet(
     @action(detail=True, methods=["post"], parser_classes=[MultiPartParser, FormParser])
     def upload_image(self, request, pk=None):
         astronomy_show = self.get_object()
-        serializer = self.get_serializer(astronomy_show, data=request.data, partial=True)
+        serializer = self.get_serializer(
+            astronomy_show, data=request.data, partial=True
+        )
 
         if serializer.is_valid():
             serializer.save()

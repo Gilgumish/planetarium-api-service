@@ -139,11 +139,26 @@ class AuthenticatedApiTests(TestCase):
         for session, serialized_session in zip(res.data["results"], serializer.data):
             self.assertEqual(session["id"], serialized_session["id"])
             self.assertEqual(session["show_time"], serialized_session["show_time"])
-            self.assertEqual(session["astronomy_show_title"], serialized_session["astronomy_show_title"])
-            self.assertEqual(session["planetarium_dome_name"], serialized_session["planetarium_dome_name"])
-            self.assertEqual(session["planetarium_dome_capacity"], serialized_session["planetarium_dome_capacity"])
-            if "tickets_available" in session and "tickets_available" in serialized_session:
-                self.assertEqual(session["tickets_available"], serialized_session["tickets_available"])
+            self.assertEqual(
+                session["astronomy_show_title"],
+                serialized_session["astronomy_show_title"],
+            )
+            self.assertEqual(
+                session["planetarium_dome_name"],
+                serialized_session["planetarium_dome_name"],
+            )
+            self.assertEqual(
+                session["planetarium_dome_capacity"],
+                serialized_session["planetarium_dome_capacity"],
+            )
+            if (
+                "tickets_available" in session
+                and "tickets_available" in serialized_session
+            ):
+                self.assertEqual(
+                    session["tickets_available"],
+                    serialized_session["tickets_available"],
+                )
 
 
 class AdminApiTests(TestCase):
