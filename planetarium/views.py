@@ -8,6 +8,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
+from rest_framework.filters import OrderingFilter
 
 from planetarium.models import ShowTheme, AstronomyShow, PlanetariumDome, ShowSession, Reservation, Ticket
 from planetarium.permissions import IsAdminOrIfAuthenticatedReadOnly, IsAdminOrIsOwner
@@ -25,7 +26,8 @@ from planetarium.serializers import (
     TicketSerializer,
     TicketListSerializer
 )
-
+from planetarium.pagination import StandardResultsSetPagination
+from planetarium.ordering import CustomOrderingFilter
 
 class ShowThemeViewSet(
     mixins.CreateModelMixin,
@@ -35,6 +37,8 @@ class ShowThemeViewSet(
     queryset = ShowTheme.objects.all()
     serializer_class = ShowThemeSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [CustomOrderingFilter]
 
     @extend_schema(
         parameters=[
@@ -64,6 +68,8 @@ class AstronomyShowViewSet(
     queryset = AstronomyShow.objects.prefetch_related("themes")
     serializer_class = AstronomyShowSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [CustomOrderingFilter]
 
     def get_queryset(self):
         title = self.request.query_params.get("title")
@@ -124,6 +130,8 @@ class PlanetariumDomeViewSet(
     queryset = PlanetariumDome.objects.all()
     serializer_class = PlanetariumDomeSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [CustomOrderingFilter]
 
     @extend_schema(
         responses={200: PlanetariumDomeSerializer(many=True)},
@@ -153,6 +161,8 @@ class ShowSessionViewSet(viewsets.ModelViewSet):
     )
     serializer_class = ShowSessionSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [CustomOrderingFilter]
 
     def get_queryset(self):
         date = self.request.query_params.get("date")
@@ -208,11 +218,6 @@ class ShowSessionViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
 
-class ReservationPagination(PageNumberPagination):
-    page_size = 10
-    max_page_size = 100
-
-
 class ReservationViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
@@ -222,8 +227,9 @@ class ReservationViewSet(
         "tickets__show_session__astronomy_show", "tickets__show_session__planetarium_dome"
     )
     serializer_class = ReservationSerializer
-    pagination_class = ReservationPagination
+    pagination_class = StandardResultsSetPagination
     permission_classes = (IsAuthenticated, IsAdminOrIsOwner)
+    filter_backends = [CustomOrderingFilter]
 
     def get_queryset(self):
         if self.request.user.is_staff:
